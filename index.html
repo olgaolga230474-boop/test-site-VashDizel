@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ВашДизель — ремонт ТНВД и форсунок</title>
+<meta name="description" content="Ремонт ТНВД и форсунок с проверкой на стенде по всей Саратовской области. Мастерская в Энгельсе. Работа по договору, оплата по счёту, гарантия 6 месяцев.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Палитра — только цвета бренда (brand/vash-dizel/tokens.css), собранные в тёмную тему.
+     Структура по мотивам authkit.com: луч света сверху, огромный заголовок в рамке с точками,
+     «стеклянная» карточка-форма в центре, плитки, схема, окно-макет документа. */
+  :root{
+    --night:#1d2329;                                   /* «Текст» бренда — основа фона */
+    --night-deep:color-mix(in srgb, #1d2329 62%, #000);
+    --steel:#3f5468;
+    --line:color-mix(in srgb, #3f5468 55%, transparent);
+    --line-soft:color-mix(in srgb, #3f5468 30%, transparent);
+    --glass:color-mix(in srgb, #3f5468 16%, transparent);
+    --glass-2:color-mix(in srgb, #3f5468 26%, transparent);
+    --ice:#f6f8fa; --mist:#dde5ec; --fog:#bfcbd6;
+    --text:#dde5ec;
+    --text-dim:color-mix(in srgb, #bfcbd6 74%, transparent);
+    --red:#c4161c; --red-deep:#8f1a1f;
+    --font-display:'Oswald', 'Arial Narrow', sans-serif;
+    --font-body:'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, monospace;
+    --wrap:1080px;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; overflow-x:clip;}
+  body{margin:0; background:var(--night-deep); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased; overflow-x:clip;}
+  /* звёздная пыль и две направляющие по краям колонки, как у AuthKit */
+  body::before{content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(221,229,236,.35), transparent 60%),
+      radial-gradient(1px 1px at 78% 9%, rgba(221,229,236,.28), transparent 60%),
+      radial-gradient(1px 1px at 33% 62%, rgba(221,229,236,.22), transparent 60%),
+      radial-gradient(1px 1px at 88% 48%, rgba(221,229,236,.3), transparent 60%),
+      radial-gradient(1px 1px at 6% 82%, rgba(221,229,236,.25), transparent 60%),
+      radial-gradient(1px 1px at 62% 88%, rgba(221,229,236,.2), transparent 60%),
+      radial-gradient(1px 1px at 46% 30%, rgba(221,229,236,.18), transparent 60%);
+    background-size:420px 420px;}
+  body::after{content:""; position:fixed; top:0; bottom:0; left:50%; width:min(var(--wrap), calc(100% - 32px)); transform:translateX(-50%); pointer-events:none; z-index:0;
+    border-left:1px solid var(--line-soft); border-right:1px solid var(--line-soft);}
+  main, header, footer{position:relative; z-index:1;}
+  a{color:inherit;}
+  h1,h2,h3{font-family:var(--font-display); font-weight:600; margin:0; letter-spacing:.2px; text-wrap:balance;}
+  :focus-visible{outline:2px solid var(--mist); outline-offset:3px; border-radius:4px;}
+  .wrap{max-width:var(--wrap); margin:0 auto; padding-inline:24px;}
+  .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
+
+  /* ---------- шапка ---------- */
+  .nav{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:16px; padding-block:10px; border-bottom:1px solid var(--line-soft);}
+  .nav .logo img{display:block; height:120px; width:auto;}
+  .nav-links{display:flex; gap:26px; font-size:.9rem; color:var(--text-dim);}
+  .nav-links a{text-decoration:none;}
+  .nav-links a:hover{color:var(--ice);}
+  .nav-right{display:flex; justify-content:flex-end; gap:10px; align-items:center;}
+  .pill{display:inline-flex; align-items:center; gap:8px; padding:9px 18px; border-radius:999px; border:1px solid var(--line); background:var(--glass); color:var(--ice); text-decoration:none; font-size:.88rem; white-space:nowrap;}
+  .pill:hover{background:var(--glass-2);}
+  .pill.mono{font-family:var(--font-mono); font-weight:500;}
+  .pill.red{background:var(--red); border-color:var(--red); color:#fff; box-shadow:0 8px 24px -10px color-mix(in srgb, var(--red) 80%, transparent);}
+  .pill.red:hover{background:var(--red-deep); border-color:var(--red-deep);}
+  @media (max-width:900px){ .nav{grid-template-columns:auto 1fr;} .nav-links{display:none;} }
+  @media (max-width:520px){ .nav-right .pill.cta{display:none;} .nav .logo img{height:96px;} }
+
+  /* ---------- первый экран ---------- */
+  .hero{position:relative; text-align:center; padding:72px 0 40px; isolation:isolate; overflow-x:clip;}
+  .beam{position:absolute; left:50%; top:-90px; width:min(1100px, 100vw); height:820px; transform:translateX(-50%); z-index:-1; pointer-events:none;
+    background:conic-gradient(from 155deg at 50% 0%, transparent 0deg, rgba(221,229,236,.08) 12deg, rgba(221,229,236,.22) 25deg, rgba(221,229,236,.08) 38deg, transparent 50deg, transparent 360deg); filter:blur(14px);
+    -webkit-mask-image:linear-gradient(#000 45%, transparent 95%); mask-image:linear-gradient(#000 45%, transparent 95%);}
+  .beam::before{content:""; position:absolute; left:50%; top:60px; width:2px; height:160px; transform:translateX(-50%); background:linear-gradient(rgba(246,248,250,.0), rgba(246,248,250,.55), rgba(246,248,250,0)); filter:blur(1px);}
+  .beam::after{content:""; position:absolute; left:50%; bottom:120px; width:520px; height:200px; transform:translateX(-50%);
+    background:radial-gradient(closest-side, color-mix(in srgb, var(--red) 30%, transparent), transparent); filter:blur(16px);}
+  .eyebrow{display:flex; align-items:center; justify-content:center; gap:16px; color:var(--text-dim); font-size:.92rem;}
+  .eyebrow::before, .eyebrow::after{content:""; width:90px; height:1px; background:linear-gradient(90deg, transparent, var(--line));}
+  .eyebrow::after{transform:scaleX(-1);}
+  .title-box{position:relative; display:inline-block; margin:30px auto 0; padding:6px 28px 10px; border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft);}
+  .title-box::before, .title-box::after{content:""; position:absolute; top:-1px; bottom:-1px; width:1px; background:var(--line-soft);}
+  .title-box::before{left:0;} .title-box::after{right:0;}
+  .dot{position:absolute; width:5px; height:5px; background:var(--fog); border-radius:50%;}
+  .dot.tl{left:-3px; top:-3px;} .dot.tr{right:-3px; top:-3px;} .dot.bl{left:-3px; bottom:-3px;} .dot.br{right:-3px; bottom:-3px;}
+  .hero h1{font-size:clamp(3.6rem, 15vw, 9.5rem); line-height:1; font-weight:600; letter-spacing:-.01em;
+    background:linear-gradient(180deg, var(--ice) 10%, var(--mist) 40%, color-mix(in srgb, var(--fog) 55%, var(--red-deep)) 62%, var(--red-deep) 86%);
+    padding-bottom:.06em; -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .lede{max-width:34ch; margin:22px auto 0; font-size:clamp(1.08rem, 2.4vw, 1.32rem); color:var(--mist); line-height:1.5;}
+  .lede span{display:block; color:var(--text-dim); font-size:.86em; margin-top:6px;}
+
+  /* три карточки под заголовком */
+  .demo{position:relative; display:grid; grid-template-columns:1fr minmax(0, 380px) 1fr; gap:28px; align-items:center; margin-top:56px; text-align:left;}
+  .glass{background:linear-gradient(180deg, color-mix(in srgb, #3f5468 24%, transparent), color-mix(in srgb, #3f5468 10%, transparent));
+    border:1px solid var(--line); border-radius:14px; box-shadow:0 30px 80px -30px rgba(0,0,0,.7), inset 0 1px 0 rgba(246,248,250,.06); backdrop-filter:blur(6px);}
+  .side{padding:22px 22px 20px; opacity:.62; font-size:.9rem;}
+  .side h3{font-size:1.05rem; margin-bottom:12px; color:var(--ice);}
+  .side .row{display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-top:1px solid var(--line-soft); color:var(--text-dim);}
+  .side .row b{font-family:var(--font-mono); font-weight:500; color:var(--mist);}
+  .side .tag{display:inline-block; margin-top:12px; font-size:.75rem; color:var(--fog); border:1px dashed var(--line); padding:2px 8px; border-radius:4px;}
+  .side.left{transform:translateX(-14%) scale(.94); transform-origin:right center;}
+  .side.right{transform:translateX(14%) scale(.94); transform-origin:left center;}
+  .side .big{font-family:var(--font-display); font-size:2.6rem; line-height:1; color:var(--ice); margin:4px 0 6px;}
+  .side .big small{font-size:1rem; color:var(--text-dim); font-family:var(--font-body); margin-left:6px;}
+  @media (max-width:980px){ .demo{grid-template-columns:1fr; justify-items:center;} .side{display:none;} }
+
+  .form-card{width:100%; padding:28px 26px 22px; position:relative;}
+  .form-card .mark{width:38px; height:38px; margin:0 auto 10px; display:grid; place-items:center; border:1px solid var(--line); border-radius:10px; background:var(--glass);}
+  .form-card h2{font-size:1.25rem; text-align:center; color:var(--ice);}
+  .form-card .sub{text-align:center; color:var(--text-dim); font-size:.86rem; margin:4px 0 18px;}
+  .field{margin-bottom:12px;}
+  .field label{display:block; font-size:.82rem; color:var(--mist); margin-bottom:6px;}
+  .field input, .field select{width:100%; padding:11px 12px; border-radius:8px; border:1px solid var(--line); background:color-mix(in srgb, var(--night-deep) 70%, transparent); color:var(--ice); font:inherit; font-size:.95rem;}
+  .field input::placeholder{color:color-mix(in srgb, var(--fog) 50%, transparent);}
+  .field select option{background:var(--night); color:var(--ice);}
+  .btn{display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:12px 16px; border-radius:8px; font:inherit; font-weight:600; font-size:.94rem; text-decoration:none; cursor:pointer; border:1px solid transparent;}
+  .btn-red{background:var(--red); color:#fff; box-shadow:0 10px 30px -10px color-mix(in srgb, var(--red) 70%, transparent);}
+  .btn-red:hover{background:var(--red-deep);}
+  .btn-ghost{background:var(--glass); border-color:var(--line); color:var(--ice); font-weight:500;}
+  .btn-ghost:hover{background:var(--glass-2);}
+  .or{display:flex; align-items:center; gap:12px; color:var(--text-dim); font-size:.8rem; margin:14px 0;}
+  .or::before, .or::after{content:""; flex:1; height:1px; background:var(--line-soft);}
+  .stack{display:grid; gap:10px;}
+  .call{text-align:center; margin:16px 0 0; font-size:.86rem; color:var(--text-dim);}
+  .call a{color:var(--ice); font-family:var(--font-mono); text-decoration:none; border-bottom:1px solid var(--line);}
+  .result{margin-top:14px; padding:14px; border-radius:8px; background:color-mix(in srgb, var(--night-deep) 70%, transparent); border:1px solid var(--line); font-size:.86rem;}
+  .result pre{white-space:pre-wrap; font-family:var(--font-mono); font-size:.8rem; color:var(--mist); margin:8px 0 12px;}
+  .copy{background:none; border:1px solid var(--line); color:var(--ice); padding:7px 12px; border-radius:6px; cursor:pointer; font:inherit; font-size:.82rem;}
+
+  .facts{display:inline-flex; margin:40px auto 0; padding:5px; border-radius:999px; border:1px solid var(--line); background:var(--glass);}
+  .facts div{padding:8px 20px; border-radius:999px; font-size:.86rem; color:var(--text-dim); white-space:nowrap;}
+  .facts div + div{border-left:1px solid var(--line-soft);}
+  .facts b{font-family:var(--font-display); font-weight:600; font-size:1.05rem; color:var(--ice); margin-right:6px;}
+  .hours{color:var(--text-dim); font-size:.84rem; margin-top:12px;}
+  @media (max-width:560px){ .facts{flex-direction:column; border-radius:16px;} .facts div{border-radius:12px;} .facts div + div{border-left:none; border-top:1px solid var(--line-soft);} }
+
+  /* ---------- общие секции ---------- */
+  section{padding:96px 0; border-top:1px solid var(--line-soft);}
+  .sec-head{text-align:center; max-width:640px; margin:0 auto 48px;}
+  .sec-head .eyebrow{margin-bottom:16px;}
+  .sec-head h2{font-size:clamp(2rem, 5vw, 3.1rem); line-height:1.08;
+    background:linear-gradient(180deg, var(--ice) 30%, var(--fog)); padding-bottom:.08em; -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .sec-head p{color:var(--text-dim); margin:14px auto 0; max-width:52ch;}
+
+  /* ---------- плитки услуг ---------- */
+  .tiles{display:flex; flex-wrap:wrap; justify-content:center; gap:34px 24px; max-width:760px; margin:0 auto;}
+  .tiles .tile{flex:0 1 calc((100% - 48px) / 3);}
+  .tile{text-align:center;}
+  .tile .ico{width:76px; height:76px; margin:0 auto 14px; border-radius:16px; display:grid; place-items:center; color:var(--mist);}
+  .tile .ico svg{width:34px; height:34px;}
+  .tile h3{font-size:1.05rem; color:var(--ice); margin-bottom:4px;}
+  .tile p{margin:0 auto; color:var(--text-dim); font-size:.86rem; max-width:24ch;}
+  @media (max-width:640px){ .tiles .tile{flex-basis:calc((100% - 24px) / 2);} }
+
+  /* ---------- схема для бизнеса ---------- */
+  .scheme{position:relative; max-width:900px; margin:0 auto;}
+  .scheme svg.wires{position:absolute; inset:0; width:100%; height:100%; z-index:0;}
+  .scheme svg.wires path{fill:none; stroke:var(--line); stroke-width:1; vector-effect:non-scaling-stroke;}
+  .scheme svg.wires path.hot{stroke:color-mix(in srgb, var(--red) 70%, transparent);}
+  .row4{position:relative; z-index:1; display:grid; grid-template-columns:repeat(4, 1fr); gap:18px;}
+  .node{padding:16px 14px; text-align:center; font-size:.9rem; color:var(--mist);}
+  .node b{display:block; font-family:var(--font-display); font-weight:600; font-size:1.05rem; color:var(--ice); margin-bottom:2px;}
+  .node span{color:var(--text-dim); font-size:.8rem; line-height:1.4; display:block;}
+  .hub-row{position:relative; z-index:1; display:flex; justify-content:center; margin:64px 0;}
+  .hub{width:120px; height:120px; display:grid; place-items:center; border-radius:24px; border:1px solid color-mix(in srgb, var(--red) 55%, var(--line));
+    background:radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--red) 30%, transparent), color-mix(in srgb, #3f5468 25%, transparent) 70%);
+    box-shadow:0 0 60px -10px color-mix(in srgb, var(--red) 55%, transparent), inset 0 1px 0 rgba(246,248,250,.08);}
+  .hub img{width:84px; height:auto;}
+  .row-label{position:relative; z-index:1; text-align:center; font-size:.78rem; color:var(--text-dim); margin:0 0 12px;}
+  .row-label.after{margin:12px 0 0;}
+  .b2b-cta{display:flex; justify-content:center; margin-top:44px;}
+  .b2b-cta .btn{width:auto; padding:13px 26px;}
+  @media (max-width:760px){
+    .scheme svg.wires{display:none;}
+    .row4{grid-template-columns:1fr 1fr;}
+    .hub-row{margin:28px 0;}
+  }
+
+  /* ---------- техника ---------- */
+  .fleet{display:grid; grid-template-columns:repeat(3, 1fr); gap:18px;}
+  .truck{overflow:hidden; padding:0;}
+  .truck .ph{position:relative; aspect-ratio:4/3; overflow:hidden; border-bottom:1px solid var(--line);}
+  .truck .ph img{width:100%; height:100%; object-fit:cover; display:block; filter:grayscale(.2) saturate(.95) contrast(1.05) brightness(1.06);}
+  .truck .ph::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 65%, color-mix(in srgb, var(--night-deep) 45%, transparent));}
+  .truck .tx{padding:18px 20px 20px;}
+  .truck h3{font-size:1.1rem; color:var(--ice); margin-bottom:6px;}
+  .truck p{margin:0; color:var(--text-dim); font-size:.88rem;}
+  .truck .kinds{display:block; margin-top:10px; font-family:var(--font-mono); font-size:.75rem; color:var(--fog);}
+  .fleet-note{text-align:center; color:var(--text-dim); font-size:.9rem; margin-top:22px;}
+  .fleet-note b{color:var(--mist); font-weight:500;}
+  @media (max-width:820px){ .fleet{grid-template-columns:1fr;} .truck .ph{aspect-ratio:16/9;} }
+
+  /* ---------- окно с дефектной ведомостью ---------- */
+  .window{max-width:980px; margin:0 auto; padding:0; overflow:visible; position:relative;}
+  .window .bar{display:flex; gap:7px; padding:12px 16px; border-bottom:1px solid var(--line-soft);}
+  .window .bar i{width:9px; height:9px; border-radius:50%; background:var(--line);}
+  .window .stage{position:relative; padding:56px 24px 64px; display:flex; justify-content:center;}
+  .doc{width:min(420px, 100%); padding:24px 24px 20px; position:relative; z-index:1;}
+  .doc .head{display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:14px;}
+  .doc h3{font-size:1.15rem; color:var(--ice);}
+  .doc .no{font-family:var(--font-mono); font-size:.78rem; color:var(--text-dim);}
+  .doc dl{margin:0;}
+  .doc dl div{display:grid; grid-template-columns:130px 1fr; gap:12px; padding:9px 0; border-top:1px solid var(--line-soft); font-size:.86rem;}
+  .doc dt{color:var(--text-dim);}
+  .doc dd{margin:0; color:var(--mist);}
+  .doc .ok{color:var(--ice);}
+  .doc .ok::before{content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:#3fa66b; margin-right:8px; vertical-align:middle;}
+  .doc .agree-status{margin-top:16px; padding:11px 14px; border-radius:8px; border:1px solid color-mix(in srgb, var(--red) 60%, var(--line)); background:color-mix(in srgb, var(--red) 14%, transparent); color:var(--ice); font-weight:600; font-size:.9rem; text-align:center;}
+  .doc .sample{display:block; text-align:center; font-size:.74rem; color:var(--text-dim); margin-top:10px;}
+  .chip{position:absolute; z-index:2; padding:12px 14px; font-size:.82rem; max-width:210px; color:var(--mist);}
+  .chip b{display:block; font-family:var(--font-display); font-weight:600; color:var(--ice); font-size:.98rem; margin-bottom:2px;}
+  .chip.c1{left:4%; top:24%;}
+  .chip.c2{right:4%; top:14%;}
+  .chip.c3{right:4%; bottom:14%;}
+  .chip .sw{display:flex; gap:6px; margin-top:8px;}
+  .chip .sw i{width:16px; height:16px; border-radius:4px; border:1px solid var(--line);}
+  @media (max-width:900px){ .chip{position:static; max-width:none;} .window .stage{flex-direction:column; align-items:center; gap:12px;} .chip, .doc{width:min(420px, 100%);} }
+
+  .steps{display:grid; grid-template-columns:repeat(5, 1fr); gap:14px; max-width:980px; margin:44px auto 0; padding:0; list-style:none; counter-reset:s;}
+  .steps li{counter-increment:s; padding-top:14px; border-top:1px solid var(--line); font-size:.86rem; color:var(--text-dim);}
+  .steps li::before{content:counter(s); display:block; font-family:var(--font-display); font-size:1.6rem; color:var(--red); line-height:1; margin-bottom:8px;}
+  .steps b{display:block; color:var(--ice); font-weight:600; margin-bottom:4px; font-size:.92rem;}
+  @media (max-width:820px){ .steps{grid-template-columns:1fr 1fr;} }
+  @media (max-width:480px){ .steps{grid-template-columns:1fr;} }
+
+  /* ---------- отзывы ---------- */
+  .reviews{display:grid; grid-template-columns:repeat(3, 1fr); gap:18px;}
+  .review{margin:0; padding:24px 22px 20px; display:flex; flex-direction:column; gap:14px;}
+  .review blockquote{margin:0; color:var(--mist); font-size:.95rem; line-height:1.6;}
+  .review figcaption{margin-top:auto; padding-top:14px; border-top:1px solid var(--line-soft); font-size:.84rem; color:var(--text-dim);}
+  .review figcaption b{display:block; color:var(--ice); font-weight:600;}
+  .sample-tag{align-self:flex-start; font-size:.72rem; color:var(--fog); border:1px dashed var(--line); padding:2px 8px; border-radius:4px;}
+  @media (max-width:860px){ .reviews{grid-template-columns:1fr;} }
+
+  /* ---------- вопросы ---------- */
+  .faq{max-width:760px; margin:0 auto;}
+  details{border-bottom:1px solid var(--line-soft);}
+  details:first-child{border-top:1px solid var(--line-soft);}
+  summary{cursor:pointer; list-style:none; display:flex; justify-content:space-between; gap:16px; padding:18px 4px; font-weight:500; color:var(--ice);}
+  summary::-webkit-details-marker{display:none;}
+  summary::after{content:"+"; font-family:var(--font-mono); color:var(--fog); transition:transform .2s;}
+  details[open] summary::after{transform:rotate(45deg);}
+  details p{margin:0; padding:0 4px 18px; color:var(--text-dim); max-width:62ch;}
+
+  /* ---------- контакты ---------- */
+  .contact{display:grid; grid-template-columns:1.1fr .9fr; gap:18px; align-items:stretch;}
+  .contact .glass{padding:30px 28px;}
+  .big-phone{display:block; font-family:var(--font-mono); font-weight:500; font-size:clamp(1.5rem, 4vw, 2.2rem); color:var(--ice); text-decoration:none; margin:6px 0 18px;}
+  .contact .btns{display:flex; gap:10px; flex-wrap:wrap;}
+  .contact .btns .btn{width:auto; padding:11px 18px;}
+  .info{display:grid;}
+  .info div{display:flex; justify-content:space-between; gap:16px; padding:12px 0; border-top:1px solid var(--line-soft); font-size:.9rem;}
+  .info div:first-child{border-top:none; padding-top:0;}
+  .info span:first-child{color:var(--text-dim); flex-shrink:0;}
+  .info span:last-child{text-align:right; color:var(--mist);}
+  @media (max-width:820px){ .contact{grid-template-columns:1fr;} }
+
+  /* ---------- футер ---------- */
+  footer{background:color-mix(in srgb, var(--night-deep) 70%, #000); border-top:1px solid var(--line-soft); padding:56px 0 0; font-size:.9rem; color:var(--text-dim);}
+  .foot{display:grid; grid-template-columns:1.4fr 1fr 1.1fr; gap:32px 48px; padding-bottom:40px;}
+  .foot img{height:52px; width:auto; display:block; margin-bottom:14px;}
+  .foot h4{font-family:var(--font-display); font-weight:500; color:var(--ice); margin:0 0 12px; font-size:1rem;}
+  .foot ul{list-style:none; margin:0; padding:0; display:grid; gap:6px;}
+  .foot a{text-decoration:none; color:var(--mist);}
+  .foot a:hover{color:var(--ice); text-decoration:underline; text-underline-offset:3px;}
+  .foot p{margin:0 0 10px; max-width:40ch;}
+  .foot-bottom{border-top:1px solid var(--line-soft); padding:18px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px 24px; font-size:.8rem;}
+  .credits{padding:0 0 24px; font-size:.72rem; color:color-mix(in srgb, var(--fog) 50%, transparent);}
+  .credits a{color:inherit;}
+  @media (max-width:760px){ .foot{grid-template-columns:1fr;} }
+
+  /* одно движение при загрузке: луч загорается, заголовок поднимается */
+  @media (prefers-reduced-motion: no-preference){
+    .beam{animation:beam 1.6s ease-out both;}
+    .hero h1{animation:rise 1.1s .25s cubic-bezier(.2,.7,.2,1) both;}
+    .lede, .demo{animation:fade 1s .7s ease-out both;}
+    @keyframes beam{from{opacity:0;} to{opacity:1;}}
+    @keyframes rise{from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:none;}}
+    @keyframes fade{from{opacity:0;} to{opacity:1;}}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#top" aria-label="ВашДизель — на главную"><img src="brand/vash-dizel/logo-dark.png" alt="ВашДизель" width="160" height="120"></a>
+    <nav class="nav-links" aria-label="Разделы">
+      <a href="#services">Услуги</a>
+      <a href="#b2b">Для бизнеса</a>
+      <a href="#fleet">Техника</a>
+      <a href="#process">Как работаем</a>
+      <a href="#contacts">Контакты</a>
+    </nav>
+    <div class="nav-right">
+      <a class="pill mono red" href="tel:+79033838953">8 903 383-89-53</a>
+      <a class="pill cta" href="#request">Рассчитать ремонт</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+<div class="hero">
+  <div class="beam" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="eyebrow">Ремонт топливной аппаратуры по всей Саратовской области</div>
+    <div class="title-box">
+      <i class="dot tl"></i><i class="dot tr"></i><i class="dot bl"></i><i class="dot br"></i>
+      <h1>ВашДизель</h1>
+    </div>
+    <p class="lede">Ремонт ТНВД и форсунок с проверкой на стенде.<span>Мы — в сердце вашего мотора.</span></p>
+
+    <div class="demo" id="request">
+      <div class="glass side left" aria-hidden="true">
+        <h3>Испытание на стенде</h3>
+        <div class="row">Давление впрыска <b>норма</b></div>
+        <div class="row">Производительность <b>норма</b></div>
+        <div class="row">Обратный слив <b>норма</b></div>
+        <div class="row">Герметичность <b>норма</b></div>
+        <span class="tag">Проверяем каждый узел после ремонта</span>
+      </div>
+
+      <div class="glass form-card">
+        <div class="mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dde5ec" stroke-width="1.6"><path d="M12 3c0 0-6 7-6 11a6 6 0 0 0 12 0c0-4-6-11-6-11z"/></svg>
+        </div>
+        <h2>Рассчитать ремонт</h2>
+        <p class="sub">Опишите задачу, мастер перезвонит и назовёт порядок цены</p>
+        <form id="lead-form" novalidate>
+          <div class="field"><label for="f-what">Техника</label><input id="f-what" type="text" placeholder="Например: КАМАЗ 5490, Case 2388" autocomplete="off"></div>
+          <div class="field"><label for="f-unit">Что ремонтировать</label>
+            <select id="f-unit">
+              <option>ТНВД</option>
+              <option>Форсунки Common Rail</option>
+              <option>Не знаю, нужна диагностика</option>
+            </select>
+          </div>
+          <div class="field"><label for="f-phone">Телефон</label><input id="f-phone" type="tel" placeholder="+7 (___) ___-__-__" autocomplete="tel"></div>
+          <button class="btn btn-red" type="submit">Подготовить заявку</button>
+        </form>
+        <div class="result" id="result" hidden>
+          <div>Заявка ещё не отправлена. Откройте WhatsApp, текст подставится сам. Для Max скопируйте текст.</div>
+          <pre id="msg"></pre>
+          <div class="stack">
+            <a class="btn btn-red" id="wa-link" href="https://wa.me/79033838953" target="_blank" rel="noopener">Отправить в WhatsApp</a>
+            <button class="copy" type="button" id="copy-msg">Скопировать текст</button>
+          </div>
+        </div>
+        <div class="or">или</div>
+        <div class="stack">
+          <a class="btn btn-ghost" href="https://wa.me/79033838953" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"/></svg>Написать в WhatsApp</a>
+          <a class="btn btn-ghost" href="https://max.ru" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10h10M7 14h6"/></svg>Написать в Max</a>
+        </div>
+        <p class="call">Или позвоните: <a href="tel:+79033838953">8 903 383-89-53</a></p>
+      </div>
+
+      <div class="glass side right" aria-hidden="true">
+        <h3>Гарантийный талон</h3>
+        <div class="big">6<small>месяцев</small></div>
+        <div class="row">На выполненные работы</div>
+        <div class="row">Дефектная ведомость на узел</div>
+        <div class="row">Личное клеймо мастера</div>
+      </div>
+    </div>
+
+    <div class="facts">
+      <div><b>20 лет</b>ремонтируем</div>
+      <div><b>20 000+</b>узлов</div>
+      <div><b>6 мес.</b>гарантии</div>
+    </div>
+    <div class="hours">Пн–Сб, 9:00–19:00. Энгельс, пр. Строителей, 39В/1</div>
+  </div>
+</div>
+
+<section id="services">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Услуги</div>
+      <h2>Только топливная аппаратура</h2>
+      <p>Не берёмся за общий ремонт двигателей. Занимаемся одним делом и проверяем результат на стенде.</p>
+    </div>
+    <div class="tiles">
+      <div class="tile"><div class="ico glass"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="9" width="16" height="16" rx="2"/><circle cx="13" cy="17" r="4"/><path d="M21 13h4v8h-4M9 9V5h8v4"/></svg></div><h3>ТНВД</h3><p>Диагностика и ремонт насосов высокого давления</p></div>
+      <div class="tile"><div class="ico glass"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M13 3h6v6l-1 2v10l-1 4h-2l-1-4V11l-1-2z"/><path d="M16 25v4M12 6h-3M20 6h3"/></svg></div><h3>Форсунки Common Rail</h3><p>Очистка, восстановление, регулировка</p></div>
+      <div class="tile"><div class="ico glass"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="16" cy="17" r="11"/><path d="M16 17l6-5M9 21h14"/><circle cx="16" cy="17" r="1.3" fill="currentColor"/></svg></div><h3>Стендовая диагностика</h3><p>Давление и производительность, дефектная ведомость</p></div>
+      <div class="tile"><div class="ico glass"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 21V10h15v11M18 14h6l4 4v3h-2"/><circle cx="9" cy="23" r="2.5"/><circle cx="23" cy="23" r="2.5"/><path d="M11.5 23h9"/></svg></div><h3>Выезд к технике</h3><p>В поле или на объект по городу и области</p></div>
+      <div class="tile"><div class="ico glass"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 10l12-6 12 6v12l-12 6-12-6z"/><path d="M4 10l12 6 12-6M16 16v12"/></svg></div><h3>Отправка узлов</h3><p>Принимаем узлы из других городов транспортной компанией</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="b2b">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Для организаций</div>
+      <h2>Ваш парк. Ваши условия. Без простоя.</h2>
+      <p>Простой техники стоит дороже ремонта. Поэтому для компаний работаем по договору и подстраиваемся под вашу бухгалтерию.</p>
+    </div>
+    <div class="scheme">
+      <svg class="wires" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <p class="row-label">С кем работаем</p>
+      <div class="row4" id="row-top">
+        <div class="glass node"><b>Автопарки</b><span>Грузовики, автобусы, тягачи</span></div>
+        <div class="glass node"><b>Агрохолдинги</b><span>Тракторы, комбайны, опрыскиватели</span></div>
+        <div class="glass node"><b>Стройкомпании</b><span>Экскаваторы, погрузчики, самосвалы</span></div>
+        <div class="glass node"><b>Автосервисы и СТО</b><span>Ремонт ТНВД и форсунок на субподряд</span></div>
+      </div>
+      <div class="hub-row"><div class="hub" id="hub"><img src="brand/vash-dizel/logo-dark.png" alt="" width="84" height="63"></div></div>
+      <div class="row4" id="row-bottom">
+        <div class="glass node"><b>Работа по договору</b><span>Разовый ремонт или обслуживание парка</span></div>
+        <div class="glass node"><b>Оплата по счёту</b><span>Безналичный расчёт, закрывающие документы</span></div>
+        <div class="glass node"><b>С НДС или без НДС</b><span>Как удобнее вашей бухгалтерии</span></div>
+        <div class="glass node"><b>Отсрочка платежа</b><span>Срок обсуждаем при заключении договора</span></div>
+      </div>
+      <p class="row-label after">Условия для организаций</p>
+    </div>
+    <div class="b2b-cta"><a class="btn btn-red" href="#contacts">Запросить договор и реквизиты</a></div>
+  </div>
+</section>
+
+<section id="fleet">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Техника</div>
+      <h2>От легкового дизеля до карьерного самосвала</h2>
+    </div>
+    <div class="fleet">
+      <article class="glass truck"><div class="ph"><img src="vash-dizel-foto/web/kamaz.jpg" alt="Грузовик КАМАЗ" width="1800" height="1200" loading="lazy"></div><div class="tx"><h3>Грузовики и автобусы</h3><p>КАМАЗ, MAN, Scania, ГАЗон Next, ГАЗель Next.</p><span class="kinds">тягачи, самосвалы, фургоны</span></div></article>
+      <article class="glass truck"><div class="ph"><img src="vash-dizel-foto/web/kombain-uborka.jpg" alt="Комбайн на уборке" width="1800" height="1350" loading="lazy"></div><div class="tx"><h3>Сельхозтехника</h3><p>Case, New Holland, Ростсельмаш, МТЗ (Беларус), К-700/К-744.</p><span class="kinds">тракторы, комбайны, опрыскиватели</span></div></article>
+      <article class="glass truck"><div class="ph"><img src="vash-dizel-foto/web/samosval.jpg" alt="Самосвал" width="1800" height="1256" loading="lazy"></div><div class="tx"><h3>Строительная техника</h3><p>Отечественные и китайские двигатели и насосы.</p><span class="kinds">экскаваторы, погрузчики, бульдозеры, катки</span></div></article>
+    </div>
+    <p class="fleet-note"><b>Легковые и лёгкие коммерческие</b> дизели любых марок, включая Common Rail. Нет вашей марки? Позвоните, подскажем.</p>
+  </div>
+</section>
+
+<section id="process">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Прозрачная смета</div>
+      <h2>Сначала дефектовка. Потом цена. Потом ремонт.</h2>
+      <p>Пока узел не разобран, не видно, какие детали изношены. Поэтому сначала показываем неисправность и называем стоимость, а работаем только после вашего согласия.</p>
+    </div>
+    <div class="glass window">
+      <div class="bar" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="stage">
+        <div class="glass chip c1"><b>Без скрытых доплат</b>Цену согласуем до начала работ</div>
+        <div class="glass doc">
+          <div class="head"><h3>Дефектная ведомость</h3><span class="no">образец</span></div>
+          <dl>
+            <div><dt>Узел</dt><dd>ТНВД Common Rail</dd></div>
+            <div><dt>Неисправность</dt><dd>Износ плунжерной пары</dd></div>
+            <div><dt>Замена</dt><dd>Плунжерная пара, клапан дозирования</dd></div>
+            <div><dt>Испытание</dt><dd class="ok">Давление и производительность в норме</dd></div>
+            <div><dt>Гарантия</dt><dd>6 месяцев, личное клеймо мастера</dd></div>
+          </dl>
+          <div class="agree-status">Смета согласована с клиентом</div>
+          <span class="sample">Так выглядит документ, который вы получаете с каждым узлом</span>
+        </div>
+        <div class="glass chip c2"><b>Оригинал или аналог</b>Компоненты подбираем под ваш бюджет и срок</div>
+        <div class="glass chip c3"><b>Запас ремкомплектов</b>Типовой ремонт без ожидания поставки</div>
+      </div>
+    </div>
+    <ol class="steps">
+      <li><b>Заявка</b>Позвоните или напишите: марка техники и симптомы</li>
+      <li><b>Приём</b>В мастерской, по ТК или выездом к технике</li>
+      <li><b>Дефектовка</b>Разбираем, показываем износ, называем цену и срок</li>
+      <li><b>Ремонт</b>После вашего согласия, оригинал или проверенный аналог</li>
+      <li><b>Стенд и выдача</b>Испытание, дефектная ведомость, гарантийный талон</li>
+    </ol>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Отзывы</div>
+      <h2>Что говорят клиенты</h2>
+    </div>
+    <div class="reviews">
+      <figure class="glass review"><span class="sample-tag">Пример отзыва</span><blockquote>Привезли четыре форсунки с MAN: вырос расход, машина дымила. Через два дня забрали вместе с дефектной ведомостью и результатами стенда. Оплатили по счёту, документы закрыли сразу.</blockquote><figcaption><b>Руководитель автопарка</b>Транспортная компания, Энгельс</figcaption></figure>
+      <figure class="glass review"><span class="sample-tag">Пример отзыва</span><blockquote>В уборку встал комбайн, отказал ТНВД. Мастер приехал в поле, насос сняли и отремонтировали за три дня. Сезон не потеряли.</blockquote><figcaption><b>Главный инженер</b>Сельхозпредприятие, Саратовская область</figcaption></figure>
+      <figure class="glass review"><span class="sample-tag">Пример отзыва</span><blockquote>Второй год отдаём ТНВД и форсунки на субподряд. Дефектную ведомость показываем клиенту, и вопросов по цене не возникает.</blockquote><figcaption><b>Владелец автосервиса</b>СТО, Саратов</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Вопросы</div>
+      <h2>Что чаще всего спрашивают</h2>
+    </div>
+    <div class="faq">
+      <details><summary>Можно отправить узел из другого города?</summary><p>Да, узлы можно отправить транспортной компанией. Позвоните или напишите в Max или WhatsApp, подскажем, как упаковать и что приложить.</p></details>
+      <details><summary>Вы выезжаете к технике?</summary><p>Да, выезжаем на объект или в поле по городу и области. Условия выезда уточняйте по телефону.</p></details>
+      <details><summary>Какие документы вы даёте организациям?</summary><p>Работаем по договору, оплата по счёту, с НДС или без НДС, возможна отсрочка платежа. Оформляем закрывающие документы. Реквизиты и форму договора пришлём по запросу.</p></details>
+      <details><summary>Что, если после ремонта узел снова неисправен?</summary><p>На работы действует гарантия 6 месяцев. Привозите узел вместе с гарантийным талоном и дефектной ведомостью, разберёмся.</p></details>
+      <details><summary>Сколько стоит ремонт?</summary><p>Точная стоимость зависит от состояния узла, поэтому называем её после дефектовки и до начала ремонта. Ориентир можем дать по телефону: назовите марку техники, модель узла и симптомы.</p></details>
+    </div>
+  </div>
+</section>
+
+<section id="contacts">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Контакты</div>
+      <h2>Позвоните или опишите задачу</h2>
+    </div>
+    <div class="contact">
+      <div class="glass">
+        <span style="color:var(--text-dim); font-size:.9rem;">Телефон, WhatsApp и Max</span>
+        <a class="big-phone" href="tel:+79033838953">8 903 383-89-53</a>
+        <div class="btns">
+          <a class="btn btn-red" href="tel:+79033838953">Позвонить</a>
+          <a class="btn btn-ghost" href="https://wa.me/79033838953" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="btn btn-ghost" href="https://max.ru" target="_blank" rel="noopener">Max</a>
+          <a class="btn btn-ghost" href="#request">Заявка на расчёт</a>
+        </div>
+      </div>
+      <div class="glass info">
+        <div><span>Адрес</span><span>Саратовская обл., г. Энгельс, пр. Строителей, 39В/1</span></div>
+        <div><span>Режим работы</span><span>Пн–Сб, 9:00–19:00</span></div>
+        <div><span>Выезд к технике</span><span>по городу и области</span></div>
+        <div><span>Отправка узлов</span><span>транспортной компанией</span></div>
+        <div><span>Исполнитель</span><span>ИП Гнусин МВ</span></div>
+        <div><span>На карте</span><span><a href="https://yandex.ru/maps/?text=%D0%AD%D0%BD%D0%B3%D0%B5%D0%BB%D1%8C%D1%81%2C%20%D0%BF%D1%80.%20%D0%A1%D1%82%D1%80%D0%BE%D0%B8%D1%82%D0%B5%D0%BB%D0%B5%D0%B9%2C%2039%D0%92%2F1" target="_blank" rel="noopener">Открыть в Яндекс Картах</a></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <img src="brand/vash-dizel/logo-dark.png" alt="ВашДизель" width="70" height="52">
+        <p>Ремонт ТНВД и форсунок для грузовиков, спецтехники, сельхозтехники и дизельных легковых.</p>
+        <p>Для организаций: договор, оплата по счёту, с НДС или без НДС, отсрочка платежа.</p>
+        <p>ИП Гнусин МВ</p>
+      </div>
+      <div>
+        <h4>Разделы</h4>
+        <ul>
+          <li><a href="#services">Услуги</a></li>
+          <li><a href="#b2b">Для бизнеса</a></li>
+          <li><a href="#fleet">Техника</a></li>
+          <li><a href="#process">Как работаем</a></li>
+          <li><a href="#reviews">Отзывы</a></li>
+          <li><a href="#faq">Вопросы</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Контакты</h4>
+        <p><a href="tel:+79033838953" style="font-family:var(--font-mono); font-size:1.2rem; color:var(--ice);">8 903 383-89-53</a></p>
+        <p>Саратовская обл., г. Энгельс,<br>пр. Строителей, 39В/1</p>
+        <p>Пн–Сб, 9:00–19:00</p>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 ВашДизель. ИП Гнусин МВ</span>
+      <span>Реквизиты для организаций пришлём по запросу</span>
+    </div>
+    <div class="credits">Фото: <a href="https://commons.wikimedia.org/w/index.php?curid=106277578" target="_blank" rel="noopener">Homoatrox</a>, CC BY-SA 3.0; <a href="https://commons.wikimedia.org/w/index.php?curid=138386662" target="_blank" rel="noopener">Wikideas1</a>, CC0; <a href="https://commons.wikimedia.org/w/index.php?curid=28821772" target="_blank" rel="noopener">High Contrast</a>, CC BY 3.0. Wikimedia Commons. Фото обработаны (тонирование).</div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    // провода схемы: от каждой плитки к центральному узлу
+    var scheme = document.querySelector('.scheme'), svg = scheme.querySelector('svg.wires'), hub = document.getElementById('hub');
+    function wire(){
+      if (getComputedStyle(svg).display === 'none') return;
+      var r = scheme.getBoundingClientRect(), h = hub.getBoundingClientRect();
+      svg.setAttribute('viewBox', '0 0 ' + r.width + ' ' + r.height);
+      var hx = h.left + h.width / 2 - r.left, top = h.top - r.top, bottom = h.bottom - r.top, d = '';
+      document.querySelectorAll('#row-top .node').forEach(function(n){
+        var b = n.getBoundingClientRect(), x = b.left + b.width / 2 - r.left, y = b.bottom - r.top, m = (y + top) / 2;
+        d += '<path d="M' + x + ' ' + y + ' V' + m + ' H' + hx + ' V' + top + '"/>';
+      });
+      document.querySelectorAll('#row-bottom .node').forEach(function(n){
+        var b = n.getBoundingClientRect(), x = b.left + b.width / 2 - r.left, y = b.top - r.top, m = (y + bottom) / 2;
+        d += '<path class="hot" d="M' + hx + ' ' + bottom + ' V' + m + ' H' + x + ' V' + y + '"/>';
+      });
+      svg.innerHTML = d;
+    }
+    wire(); addEventListener('resize', wire); if (document.fonts) document.fonts.ready.then(wire);
+
+    // заявка: собираем текст и отдаём в WhatsApp
+    var form = document.getElementById('lead-form'), result = document.getElementById('result'), msg = document.getElementById('msg'), wa = document.getElementById('wa-link');
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var what = document.getElementById('f-what').value.trim(), unit = document.getElementById('f-unit').value, phone = document.getElementById('f-phone').value.trim();
+      var text = 'Здравствуйте! Заявка с сайта «ВашДизель».\n' + (what ? 'Техника: ' + what + '\n' : '') + 'Узел: ' + unit + '\n' + (phone ? 'Телефон: ' + phone : 'Телефон: перезвоните на этот номер');
+      msg.textContent = text;
+      wa.href = 'https://wa.me/79033838953?text=' + encodeURIComponent(text);
+      form.hidden = true; result.hidden = false;
+    });
+    document.getElementById('copy-msg').addEventListener('click', function(){
+      var btn = this;
+      try { navigator.clipboard.writeText(msg.textContent).then(function(){ btn.textContent = 'Скопировано'; setTimeout(function(){ btn.textContent = 'Скопировать текст'; }, 1600); }); } catch(e) {}
+    });
+  })();
+</script>
+</body>
+</html>
